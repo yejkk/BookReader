@@ -134,9 +134,10 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
 
         mDatas = Arrays.asList(getResources().getStringArray(R.array.home_tabs));
         mTabContents = new ArrayList<>();
+        mTabContents.add(new FindFragment());
         mTabContents.add(new RecommendFragment());
         mTabContents.add(new CommunityFragment());
-        mTabContents.add(new FindFragment());
+
 
         mAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
