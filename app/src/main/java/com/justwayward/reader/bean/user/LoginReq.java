@@ -21,7 +21,7 @@ package com.justwayward.reader.bean.user;
  */
 public class LoginReq {
 
-    public String platform_uid;
-    public String platform_token;
-    public String platform_code;
+    public String UserName;
+    public String UserPassword;
+    public String Action;
 }

@@ -16,9 +16,9 @@
   -->
 <resources>
     <string-array name="home_tabs">
+        <item>发现</item>
         <item>书架</item>
         <item>社区</item>
-        <item>发现</item>
     </string-array>
 
     <string-array name="sub_tabs">

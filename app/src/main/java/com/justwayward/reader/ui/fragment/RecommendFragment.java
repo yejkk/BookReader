@@ -98,7 +98,7 @@ public class RecommendFragment extends BaseRVFragment<RecommendPresenter, Recomm
                 headerView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((MainActivity) activity).setCurrentItem(2);
+                        ((MainActivity) activity).setCurrentItem(0);
                     }
                 });
             }
@@ -106,7 +106,7 @@ public class RecommendFragment extends BaseRVFragment<RecommendPresenter, Recomm
         mRecyclerView.getEmptyView().findViewById(R.id.btnToAdd).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) activity).setCurrentItem(2);
+                ((MainActivity) activity).setCurrentItem(0);
             }
         });
         onRefresh();

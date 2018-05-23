@@ -16,8 +16,10 @@
 package com.justwayward.reader.view;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,8 +27,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.justwayward.reader.R;
 
@@ -34,14 +39,15 @@ import com.justwayward.reader.R;
  * @author yuyh.
  * @date 16/9/5.
  */
-public class LoginPopupWindow extends PopupWindow implements View.OnTouchListener {
+public class LoginPopupWindow extends PopupWindow implements View.OnClickListener {
 
     private View mContentView;
     private Activity mActivity;
 
-    private ImageView qq;
-    private ImageView weibo;
-    private ImageView wechat;
+    private EditText user;
+    private EditText pass;
+    private Button loginBtn;
+    private TextView pop;
 
     LoginTypeListener listener;
 
@@ -49,58 +55,21 @@ public class LoginPopupWindow extends PopupWindow implements View.OnTouchListene
     public LoginPopupWindow(Activity activity) {
         mActivity = activity;
         setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-        setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        setHeight(ViewGroup.LayoutParams.MATCH_PARENT);
 
         mContentView = LayoutInflater.from(activity).inflate(R.layout.layout_login_popup_window, null);
         setContentView(mContentView);
 
-        qq = (ImageView) mContentView.findViewById(R.id.ivQQ);
-        weibo = (ImageView) mContentView.findViewById(R.id.ivWeibo);
-        wechat = (ImageView) mContentView.findViewById(R.id.ivWechat);
-
-        qq.setOnTouchListener(this);
-        weibo.setOnTouchListener(this);
-        wechat.setOnTouchListener(this);
-
-        setFocusable(true);
-        setOutsideTouchable(true);
-        setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
+        user = (EditText) mContentView.findViewById(R.id.userId);
+        pass = (EditText) mContentView.findViewById(R.id.pass);
+        loginBtn = (Button) mContentView.findViewById(R.id.loginBtn);
+        loginBtn.setOnClickListener(this);
+        pop = (TextView) mContentView.findViewById(R.id.promptText);
 
         setAnimationStyle(R.style.LoginPopup);
+        setFocusable(true);
 
-        setOnDismissListener(new OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                lighton();
-            }
-        });
-    }
 
-    private void scale(View v, boolean isDown) {
-        if (v.getId() == qq.getId() || v.getId() == weibo.getId() || v.getId() == wechat.getId()) {
-            if (isDown) {
-                Animation testAnim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_down);
-                v.startAnimation(testAnim);
-            } else {
-                Animation testAnim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_up);
-                v.startAnimation(testAnim);
-            }
-        }
-        if (!isDown && listener!=null) {
-            switch (v.getId()) {
-                case R.id.ivQQ:
-                    listener.onLogin(qq, "QQ");
-                    break;
-            }
-
-            qq.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    dismiss();
-                }
-            }, 500);
-
-        }
     }
 
     private void lighton() {
@@ -115,34 +84,45 @@ public class LoginPopupWindow extends PopupWindow implements View.OnTouchListene
         mActivity.getWindow().setAttributes(lp);
     }
 
-    @Override
-    public void showAsDropDown(View anchor, int xoff, int yoff) {
-        lightoff();
-        super.showAsDropDown(anchor, xoff, yoff);
-    }
+//    @Override
+//    public void showAsDropDown(View anchor, int xoff, int yoff) {
+//        lightoff();
+//        super.showAsDropDown(anchor, xoff, yoff);
+//    }
+//
+//    @Override
+//    public void showAtLocation(View parent, int gravity, int x, int y) {
+//        lightoff();
+//        super.showAtLocation(parent, gravity, x, y);
+//    }
 
     @Override
-    public void showAtLocation(View parent, int gravity, int x, int y) {
-        lightoff();
-        super.showAtLocation(parent, gravity, x, y);
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                scale(v, true);
-                break;
-            case MotionEvent.ACTION_UP:
-                scale(v, false);
-                break;
+    public void onClick(View v) {
+        if(v.getId() == R.id.loginBtn){
+            String userid = user.getText().toString();
+            String userpass = pass.getText().toString();
+            if(userid ==null || TextUtils.equals(userid , "") || userpass ==null || TextUtils.equals(userpass , "")){
+                pop.setText("请输入用户名密码");
+                return;
+            }
+            pop.setText("登陆中");
+            listener.onLogin(userid,userpass);
+            return;
         }
-        return false;
+    }
+
+    public void getLoginStatus(boolean success){
+        if(success){
+            this.dismiss();
+        }else{
+            pop.setText("用户名密码错误");
+        }
     }
 
     public interface LoginTypeListener {
 
-        void onLogin(ImageView view, String type);
+        void onLogin(String userId, String userPass);
+
     }
 
     public void setLoginTypeListener(LoginTypeListener listener){

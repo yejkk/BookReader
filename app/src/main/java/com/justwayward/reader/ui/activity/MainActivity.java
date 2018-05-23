@@ -37,7 +37,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 
 import com.google.gson.Gson;
 import com.justwayward.reader.R;
@@ -102,6 +104,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
     public static Tencent mTencent;
     public IUiListener loginListener;
     private GenderPopupWindow genderPopupWindow;
+    private boolean loginsucccess = false;
 
     @Override
     public int getLayoutId() {
@@ -175,6 +178,18 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
         }, 500);
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus && !loginsucccess) {
+            if (popupWindow == null) {
+                popupWindow = new LoginPopupWindow(this);
+                popupWindow.setLoginTypeListener(this);
+            }
+            popupWindow.showAtLocation(mCommonToolbar, Gravity.NO_GRAVITY, 0, 0);
+        }
+    }
+
     public void showChooseSexPopupWindow() {
         if (genderPopupWindow == null) {
             genderPopupWindow = new GenderPopupWindow(MainActivity.this);
@@ -204,11 +219,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
                 startActivity(new Intent(MainActivity.this, SearchActivity.class));
                 break;
             case R.id.action_login:
-                if (popupWindow == null) {
-                    popupWindow = new LoginPopupWindow(this);
-                    popupWindow.setLoginTypeListener(this);
-                }
-                popupWindow.showAtLocation(mCommonToolbar, Gravity.CENTER, 0, 0);
+
                 break;
             case R.id.action_my_message:
                 if (popupWindow == null) {
@@ -297,6 +308,13 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
     @Override
     public void loginSuccess() {
         ToastUtils.showSingleToast("登陆成功");
+        loginsucccess = true;
+        popupWindow.getLoginStatus(true);
+    }
+
+    @Override
+    public void loginFail() {
+        popupWindow.getLoginStatus(false);
     }
 
     @Override
@@ -306,13 +324,14 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
     }
 
     @Override
-    public void onLogin(ImageView view, String type) {
-        if (type.equals("QQ")) {
-            if (!mTencent.isSessionValid()) {
-                if (loginListener == null) loginListener = new BaseUIListener();
-                mTencent.login(this, "all", loginListener);
-            }
-        }
+    public void onLogin(String userId, String userPass) {
+        mPresenter.login(userId,userPass);
+//        if (type.equals("QQ")) {
+//            if (!mTencent.isSessionValid()) {
+//                if (loginListener == null) loginListener = new BaseUIListener();
+//                mTencent.login(this, "all", loginListener);
+//            }
+//        }
         //4f45e920ff5d1a0e29d997986cd97181
     }
 
@@ -328,27 +347,27 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
     }
 
 
-    public class BaseUIListener implements IUiListener {
-
-        @Override
-        public void onComplete(Object o) {
-            JSONObject jsonObject = (JSONObject) o;
-            String json = jsonObject.toString();
-            Gson gson = new Gson();
-            TencentLoginResult result = gson.fromJson(json, TencentLoginResult.class);
-            LogUtils.e(result.toString());
-            mPresenter.login(result.openid, result.access_token, "QQ");
-        }
-
-        @Override
-        public void onError(UiError uiError) {
-        }
-
-        @Override
-        public void onCancel() {
-
-        }
-    }
+//    public class BaseUIListener implements IUiListener {
+//
+//        @Override
+//        public void onComplete(Object o) {
+//            JSONObject jsonObject = (JSONObject) o;
+//            String json = jsonObject.toString();
+//            Gson gson = new Gson();
+//            TencentLoginResult result = gson.fromJson(json, TencentLoginResult.class);
+//            LogUtils.e(result.toString());
+//            mPresenter.login(result.openid, result.access_token, "QQ");
+//        }
+//
+//        @Override
+//        public void onError(UiError uiError) {
+//        }
+//
+//        @Override
+//        public void onCancel() {
+//
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

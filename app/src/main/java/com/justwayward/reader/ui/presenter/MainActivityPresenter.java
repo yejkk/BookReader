@@ -15,6 +15,8 @@
  */
 package com.justwayward.reader.ui.presenter;
 
+import android.text.TextUtils;
+
 import com.justwayward.reader.api.BookApi;
 import com.justwayward.reader.base.RxPresenter;
 import com.justwayward.reader.bean.BookMixAToc;
@@ -52,15 +54,19 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
     }
 
     @Override
-    public void login(String uid, String token, String platform) {
-        Subscription rxSubscription = bookApi.login(uid, token, platform).subscribeOn(Schedulers.io())
+    public void login(String uid, String pass) {
+        Subscription rxSubscription = bookApi.login(uid, pass).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Login>() {
                     @Override
                     public void onNext(Login data) {
-                        if (data != null && mView != null && data.ok) {
-                            mView.loginSuccess();
-                            LogUtils.e(data.user.toString());
+                        if (data != null && mView != null ) {
+                            if(TextUtils.equals(data.rescode , "200")){
+                                mView.loginSuccess();
+                            }else{
+                                mView.loginFail();
+                            }
+
                         }
                     }
 

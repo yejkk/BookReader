@@ -131,7 +131,7 @@ public class BookApi {
     }
 
     public Observable<RankingList> getRanking() {
-        return service.getRanking();
+        return service.getRankingNew("http://23.105.205.76/backend/ranking/gender");
     }
 
     public Observable<Rankings> getRanking(String rankingId) {
@@ -198,11 +198,11 @@ public class BookApi {
         return service.getBookHelpDetail(helpId);
     }
 
-    public Observable<Login> login(String platform_uid, String platform_token, String platform_code) {
+    public Observable<Login> login(String uid, String pass) {
         LoginReq loginReq = new LoginReq();
-        loginReq.platform_code = platform_code;
-        loginReq.platform_token = platform_token;
-        loginReq.platform_uid = platform_uid;
+        loginReq.UserName = uid;
+        loginReq.UserPassword = pass;
+        loginReq.Action = "login";
         return service.login(loginReq);
     }
 

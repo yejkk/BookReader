@@ -54,6 +54,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 import rx.Observable;
 
 /**
@@ -159,6 +160,9 @@ public interface BookApiService {
      */
     @GET("/ranking/gender")
     Observable<RankingList> getRanking();
+
+    @GET
+    Observable<RankingList> getRankingNew(@Url String url);
 
     /**
      * 获取单一排行榜
@@ -346,14 +350,14 @@ public interface BookApiService {
     Observable<BookHelp> getBookHelpDetail(@Path("helpId") String helpId);
 
     /**
-     * 第三方登陆
+     * 登陆
      *
-     * @param platform_uid
-     * @param platform_token
-     * @param platform_code  “QQ”
+     * @param UserName
+     * @param UserPassword
+     * @param Action
      * @return
      */
-    @POST("/user/login")
+    @POST("http://23.105.205.76/backend/regist")
     Observable<Login> login(@Body LoginReq loginReq);
 
     @GET("/user/followings/{userid}")
