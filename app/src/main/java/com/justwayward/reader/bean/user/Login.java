@@ -35,7 +35,7 @@ public class Login implements Serializable {
 
     public String rescode;
 
-    public String info;
+    public String INFO;
 
 
 

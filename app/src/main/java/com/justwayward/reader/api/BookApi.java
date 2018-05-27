@@ -24,6 +24,10 @@ import com.justwayward.reader.bean.BookListDetail;
 import com.justwayward.reader.bean.BookListTags;
 import com.justwayward.reader.bean.BookLists;
 import com.justwayward.reader.bean.BookMixAToc;
+import com.justwayward.reader.bean.BookPublish;
+import com.justwayward.reader.bean.BookPublishRequest;
+import com.justwayward.reader.bean.BookRead;
+import com.justwayward.reader.bean.BookReadVip;
 import com.justwayward.reader.bean.BookReview;
 import com.justwayward.reader.bean.BookReviewList;
 import com.justwayward.reader.bean.BookSource;
@@ -130,8 +134,17 @@ public class BookApi {
         return service.getABookSource(view, book);
     }
 
+    public synchronized Observable<List<BookSource>> getBBookSource(String view, String book) {
+        return service.getBBookSource(view, book);
+    }
+
+    public synchronized Observable<BookReadVip> getABookRead(String bookId, String view) {
+        return service.getABookRead(bookId, view);
+    }
+
+
     public Observable<RankingList> getRanking() {
-        return service.getRankingNew("http://23.105.205.76/backend/ranking/gender");
+        return service.getRanking();
     }
 
     public Observable<Rankings> getRanking(String rankingId) {
@@ -198,13 +211,19 @@ public class BookApi {
         return service.getBookHelpDetail(helpId);
     }
 
-    public Observable<Login> login(String uid, String pass) {
-        LoginReq loginReq = new LoginReq();
-        loginReq.UserName = uid;
-        loginReq.UserPassword = pass;
-        loginReq.Action = "login";
+    public Observable<Login> login(LoginReq loginReq) {
         return service.login(loginReq);
     }
+
+    public Observable<Login> regist(LoginReq loginReq) {
+        return service.login(loginReq);
+    }
+
+    public Observable<BookPublish> publish(BookPublishRequest bookPublishRequest) {
+        return service.login(bookPublishRequest);
+    }
+
+
 
     public Observable<DiscussionList> getBookDetailDisscussionList(String book, String sort, String type, String start, String limit) {
         return service.getBookDetailDisscussionList(book, sort, type, start, limit);

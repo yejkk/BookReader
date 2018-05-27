@@ -153,7 +153,7 @@ public class CacheManager {
 
     public void saveChapterFile(String bookId, int chapter, ChapterRead.Chapter data) {
         File file = FileUtils.getChapterFile(bookId, chapter);
-        FileUtils.writeFile(file.getAbsolutePath(), StringUtils.formatContent(data.body), false);
+        FileUtils.writeFile(file.getAbsolutePath(), StringUtils.formatContent(data.cpContent), false);
     }
 
     /**

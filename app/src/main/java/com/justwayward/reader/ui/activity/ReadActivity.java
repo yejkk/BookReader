@@ -51,6 +51,7 @@ import com.justwayward.reader.ReaderApplication;
 import com.justwayward.reader.base.BaseActivity;
 import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.bean.BookMixAToc;
+import com.justwayward.reader.bean.BookPublishRequest;
 import com.justwayward.reader.bean.BookSource;
 import com.justwayward.reader.bean.ChapterRead;
 import com.justwayward.reader.bean.Recommend;
@@ -123,6 +124,8 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
     TextView mTvBookReadChangeSource;
     @Bind(R.id.tvBookReadSource)
     TextView mTvBookReadSource;
+    @Bind(R.id.tvBookPublish)
+    TextView mTvBookPublish;
 
     @Bind(R.id.flReadWidget)
     FrameLayout flReadWidget;
@@ -323,8 +326,37 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
             return;
         }
         mPresenter.getBookMixAToc(bookId, "chapters");
+
+        BookPublishRequest bookPublishRequest = new BookPublishRequest();
+        bookPublishRequest.Action = "isPublish";
+        bookPublishRequest.bookId = bookId;
+        mPresenter.showIsPublish(bookPublishRequest);
+        mTvBookPublish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BookPublishRequest bookPublishRequest = new BookPublishRequest();
+                bookPublishRequest.Action = "Publish";
+                bookPublishRequest.bookId = bookId;
+                mPresenter.sendPublish(bookPublishRequest);
+            }
+        });
     }
 
+    @Override
+    public void showPublish(int publish) {
+        if (publish == 0) {
+            mTvBookPublish.setVisibility(View.GONE);
+        } else if (publish == 1) {
+            mTvBookPublish.setVisibility(View.VISIBLE);
+            mTvBookPublish.setText("出版");
+        } else if (publish == 2) {
+            mTvBookPublish.setVisibility(View.VISIBLE);
+            mTvBookPublish.setText("购买");
+        } else if (publish == 3) {
+            mTvBookPublish.setVisibility(View.VISIBLE);
+            mTvBookPublish.setText("已出版");
+        }
+    }
 
     private void initTocList() {
         mTocListAdapter = new TocListAdapter(this, mChapterList, bookId, currentChapter);
@@ -455,7 +487,7 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
         if (CacheManager.getInstance().getChapterFile(bookId, currentChapter) != null) {
             showChapterRead(null, currentChapter);
         } else {
-            mPresenter.getChapterRead(mChapterList.get(currentChapter - 1).link, currentChapter);
+            mPresenter.getChapterRead(mChapterList.get(currentChapter - 1).link, currentChapter, bookId);
         }
     }
 
@@ -881,6 +913,7 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
 
         try {
             unregisterReceiver(receiver);
+            getContentResolver().unregisterContentObserver(Brightness);
         } catch (Exception e) {
             LogUtils.e("Receiver not registered");
         }
@@ -909,7 +942,7 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
             for (int i = chapter - 1; i <= chapter + 3 && i <= mChapterList.size(); i++) {
                 if (i > 0 && i != chapter
                         && CacheManager.getInstance().getChapterFile(bookId, i) == null) {
-                    mPresenter.getChapterRead(mChapterList.get(i - 1).link, i);
+                    mPresenter.getChapterRead(mChapterList.get(i - 1).link, i, bookId);
                 }
             }
         }
@@ -924,7 +957,7 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
             LogUtils.i("onLoadChapterFailure:" + chapter);
             startRead = false;
             if (CacheManager.getInstance().getChapterFile(bookId, chapter) == null)
-                mPresenter.getChapterRead(mChapterList.get(chapter - 1).link, chapter);
+                mPresenter.getChapterRead(mChapterList.get(chapter - 1).link, chapter, bookId);
         }
 
         @Override

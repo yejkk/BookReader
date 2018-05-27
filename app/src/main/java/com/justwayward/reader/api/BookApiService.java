@@ -22,7 +22,10 @@ import com.justwayward.reader.bean.BookListDetail;
 import com.justwayward.reader.bean.BookListTags;
 import com.justwayward.reader.bean.BookLists;
 import com.justwayward.reader.bean.BookMixAToc;
+import com.justwayward.reader.bean.BookPublish;
+import com.justwayward.reader.bean.BookPublishRequest;
 import com.justwayward.reader.bean.BookRead;
+import com.justwayward.reader.bean.BookReadVip;
 import com.justwayward.reader.bean.BookReview;
 import com.justwayward.reader.bean.BookReviewList;
 import com.justwayward.reader.bean.BookSource;
@@ -76,6 +79,9 @@ public interface BookApiService {
      */
     @GET("/atoc")
     Observable<List<BookSource>> getABookSource(@Query("view") String view, @Query("book") String book);
+
+    @GET("http://162.219.121.112/atoc/{bookId}")
+    Observable<BookReadVip> getABookRead(@Path("bookId") String bookId, @Query("view") String view);
 
     /**
      * 只能获取正版源
@@ -357,8 +363,11 @@ public interface BookApiService {
      * @param Action
      * @return
      */
-    @POST("http://23.105.205.76/backend/regist")
+    @POST("http://162.219.121.112/backend/regist")
     Observable<Login> login(@Body LoginReq loginReq);
+
+    @POST("http://162.219.121.112/backend/regist")
+    Observable<BookPublish> login(@Body BookPublishRequest bookPublishRequest);
 
     @GET("/user/followings/{userid}")
     Observable<Following> getFollowings(@Path("userid") String userId);

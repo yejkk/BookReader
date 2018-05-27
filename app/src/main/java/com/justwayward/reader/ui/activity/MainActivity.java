@@ -45,6 +45,7 @@ import com.google.gson.Gson;
 import com.justwayward.reader.R;
 import com.justwayward.reader.base.BaseActivity;
 import com.justwayward.reader.base.Constant;
+import com.justwayward.reader.bean.user.LoginReq;
 import com.justwayward.reader.bean.user.TencentLoginResult;
 import com.justwayward.reader.component.AppComponent;
 import com.justwayward.reader.component.DaggerMainComponent;
@@ -181,7 +182,8 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if(hasFocus && !loginsucccess) {
+
+        if(hasFocus && !SharedPreferencesUtil.getInstance().getBoolean(Constant.Login, false)) {
             if (popupWindow == null) {
                 popupWindow = new LoginPopupWindow(this);
                 popupWindow.setLoginTypeListener(this);
@@ -219,7 +221,9 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
                 startActivity(new Intent(MainActivity.this, SearchActivity.class));
                 break;
             case R.id.action_login:
-
+                loginsucccess = false;
+                SharedPreferencesUtil.getInstance().putBoolean(Constant.Login, false);
+                onWindowFocusChanged(true);
                 break;
             case R.id.action_my_message:
                 if (popupWindow == null) {
@@ -310,11 +314,23 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
         ToastUtils.showSingleToast("登陆成功");
         loginsucccess = true;
         popupWindow.getLoginStatus(true);
+        SharedPreferencesUtil.getInstance().putBoolean(Constant.Login, true);
     }
 
     @Override
     public void loginFail() {
         popupWindow.getLoginStatus(false);
+    }
+
+    @Override
+    public void registSuccess() {
+        ToastUtils.showSingleToast("注册成功");
+        popupWindow.getRegistStatus(true);
+    }
+
+    @Override
+    public void registFail() {
+        popupWindow.getRegistStatus(false);
     }
 
     @Override
@@ -325,7 +341,12 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
 
     @Override
     public void onLogin(String userId, String userPass) {
-        mPresenter.login(userId,userPass);
+        LoginReq loginReq = new LoginReq();
+        loginReq.UserName = userId;
+        loginReq.UserPassword = userPass;
+        loginReq.Action = "login";
+
+        mPresenter.login(loginReq);
 //        if (type.equals("QQ")) {
 //            if (!mTencent.isSessionValid()) {
 //                if (loginListener == null) loginListener = new BaseUIListener();
@@ -334,6 +355,12 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
 //        }
         //4f45e920ff5d1a0e29d997986cd97181
     }
+
+    @Override
+    public void onRegost(LoginReq loginReq) {
+        mPresenter.regist(loginReq);
+    }
+
 
     @Override
     public void showError() {

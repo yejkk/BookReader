@@ -53,6 +53,10 @@ public class Constant {
 
     public static final String ISNIGHT = "isNight";
 
+    public static final String Login = "user_login";
+
+    public static final String Manager = "user_manager";
+
     public static final String ISBYUPDATESORT = "isByUpdateSort";
     public static final String FLIP_STYLE = "flipStyle";
 

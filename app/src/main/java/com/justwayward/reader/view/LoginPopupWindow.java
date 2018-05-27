@@ -34,6 +34,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.justwayward.reader.R;
+import com.justwayward.reader.bean.user.LoginReq;
 
 /**
  * @author yuyh.
@@ -46,7 +47,12 @@ public class LoginPopupWindow extends PopupWindow implements View.OnClickListene
 
     private EditText user;
     private EditText pass;
+    private EditText passRepeat;
     private Button loginBtn;
+    private Button registBtn;
+    private Button registBtnSuccess;
+    private Button registback;
+
     private TextView pop;
 
     LoginTypeListener listener;
@@ -62,8 +68,16 @@ public class LoginPopupWindow extends PopupWindow implements View.OnClickListene
 
         user = (EditText) mContentView.findViewById(R.id.userId);
         pass = (EditText) mContentView.findViewById(R.id.pass);
+        passRepeat = (EditText) mContentView.findViewById(R.id.pass_repeat);
+
         loginBtn = (Button) mContentView.findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(this);
+        registBtn = (Button) mContentView.findViewById(R.id.registBtn);
+        registBtn.setOnClickListener(this);
+        registBtnSuccess = (Button) mContentView.findViewById(R.id.registBtnSuccess);
+        registBtnSuccess.setOnClickListener(this);
+        registback = (Button) mContentView.findViewById(R.id.registback);
+        registback.setOnClickListener(this);
         pop = (TextView) mContentView.findViewById(R.id.promptText);
 
         setAnimationStyle(R.style.LoginPopup);
@@ -108,7 +122,49 @@ public class LoginPopupWindow extends PopupWindow implements View.OnClickListene
             pop.setText("登陆中");
             listener.onLogin(userid,userpass);
             return;
+        }else if(v.getId() == R.id.registBtn){
+            loginBtn.setVisibility(View.GONE);
+            registBtn.setVisibility(View.GONE);
+
+            registBtnSuccess.setVisibility(View.VISIBLE);
+            passRepeat.setVisibility(View.VISIBLE);
+            registback.setVisibility(View.VISIBLE);
+            user.setText("");
+            pass.setText("");
+            passRepeat.setText("");
+            pop.setText("开始注册，完成上列信息");
+            return;
+        }else if(v.getId() == R.id.registBtnSuccess){
+            String userid = user.getText().toString();
+            String userpass = pass.getText().toString();
+            String userpassRe = passRepeat.getText().toString();
+            if(userid ==null || TextUtils.equals(userid , "") || userpass ==null || TextUtils.equals(userpass , "")
+                    || userpassRe ==null || TextUtils.equals(userpassRe , "") ){
+                pop.setText("请填写用户名密码");
+                return;
+            }
+            if(!TextUtils.equals(userpass,userpassRe)){
+                pop.setText("确认密码填写不一致");
+                return;
+            }
+            pop.setText("注册中");
+            LoginReq loginReq = new LoginReq();
+            loginReq.UserName = userid;
+            loginReq.UserPassword = userpass;
+            loginReq.Action = "Regist";
+            listener.onRegost(loginReq);
+            return;
+        }else if(v.getId() == R.id.registback){
+            loginBtn.setVisibility(View.VISIBLE);
+            registBtn.setVisibility(View.VISIBLE);
+
+            registBtnSuccess.setVisibility(View.GONE);
+            passRepeat.setVisibility(View.GONE);
+            registback.setVisibility(View.GONE);
+            pop.setText("");
+            return;
         }
+
     }
 
     public void getLoginStatus(boolean success){
@@ -119,10 +175,19 @@ public class LoginPopupWindow extends PopupWindow implements View.OnClickListene
         }
     }
 
+    public void getRegistStatus(boolean success){
+        if(success){
+            registback.callOnClick();
+            pop.setText("请登录");
+        }else{
+            pop.setText("注册失败，用户名重复");
+        }
+    }
+
     public interface LoginTypeListener {
 
         void onLogin(String userId, String userPass);
-
+        void onRegost(LoginReq loginReq);
     }
 
     public void setLoginTypeListener(LoginTypeListener listener){

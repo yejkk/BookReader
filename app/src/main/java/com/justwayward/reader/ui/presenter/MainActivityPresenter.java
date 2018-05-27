@@ -18,13 +18,16 @@ package com.justwayward.reader.ui.presenter;
 import android.text.TextUtils;
 
 import com.justwayward.reader.api.BookApi;
+import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.base.RxPresenter;
 import com.justwayward.reader.bean.BookMixAToc;
 import com.justwayward.reader.bean.Recommend;
 import com.justwayward.reader.bean.user.Login;
+import com.justwayward.reader.bean.user.LoginReq;
 import com.justwayward.reader.manager.CollectionsManager;
 import com.justwayward.reader.ui.contract.MainContract;
 import com.justwayward.reader.utils.LogUtils;
+import com.justwayward.reader.utils.SharedPreferencesUtil;
 import com.justwayward.reader.utils.ToastUtils;
 
 import java.util.ArrayList;
@@ -54,8 +57,8 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
     }
 
     @Override
-    public void login(String uid, String pass) {
-        Subscription rxSubscription = bookApi.login(uid, pass).subscribeOn(Schedulers.io())
+    public void login(LoginReq loginReq) {
+        Subscription rxSubscription = bookApi.login(loginReq).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Login>() {
                     @Override
@@ -63,8 +66,42 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                         if (data != null && mView != null ) {
                             if(TextUtils.equals(data.rescode , "200")){
                                 mView.loginSuccess();
+                                if(TextUtils.equals(data.INFO, "manager")) {
+                                    SharedPreferencesUtil.getInstance().putBoolean(Constant.Manager, true);
+                                }else{
+                                    SharedPreferencesUtil.getInstance().putBoolean(Constant.Manager, false);
+                                }
                             }else{
                                 mView.loginFail();
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("login" + e.toString());
+                    }
+                });
+        addSubscrebe(rxSubscription);
+    }
+
+    @Override
+    public void regist(LoginReq loginReq) {
+        Subscription rxSubscription = bookApi.regist(loginReq).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Login>() {
+                    @Override
+                    public void onNext(Login data) {
+                        if (data != null && mView != null ) {
+                            if(TextUtils.equals(data.rescode , "200")){
+                                mView.registSuccess();
+                            }else{
+                                mView.registFail();
                             }
 
                         }
@@ -132,7 +169,7 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                     @Override
                     public void onError(Throwable e) {
                         LogUtils.e("onError: " + e);
-                        mView.showError();
+//                        mView.showError();
                     }
                 });
         addSubscrebe(rxSubscription);

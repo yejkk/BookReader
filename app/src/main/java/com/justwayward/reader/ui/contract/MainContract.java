@@ -16,6 +16,7 @@
 package com.justwayward.reader.ui.contract;
 
 import com.justwayward.reader.base.BaseContract;
+import com.justwayward.reader.bean.user.LoginReq;
 
 /**
  * @author yuyh.
@@ -28,12 +29,18 @@ public interface MainContract {
 
         void loginFail();
 
+        void registSuccess();
+
+        void registFail();
+
         void syncBookShelfCompleted();
     }
 
     interface Presenter<T> extends BaseContract.BasePresenter<T> {
 
-        void login(String uid, String pass);
+        void login(LoginReq loginReq);
+
+        void regist(LoginReq loginReq);
 
         void syncBookShelf();
     }

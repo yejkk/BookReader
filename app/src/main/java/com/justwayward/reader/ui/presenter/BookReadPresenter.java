@@ -16,15 +16,25 @@
 package com.justwayward.reader.ui.presenter;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.justwayward.reader.api.BookApi;
+import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.base.RxPresenter;
 import com.justwayward.reader.bean.BookMixAToc;
+import com.justwayward.reader.bean.BookPublish;
+import com.justwayward.reader.bean.BookPublishRequest;
+import com.justwayward.reader.bean.BookRead;
+import com.justwayward.reader.bean.BookReadVip;
+import com.justwayward.reader.bean.BookSource;
 import com.justwayward.reader.bean.ChapterRead;
 import com.justwayward.reader.ui.contract.BookReadContract;
 import com.justwayward.reader.utils.LogUtils;
 import com.justwayward.reader.utils.RxUtil;
+import com.justwayward.reader.utils.SharedPreferencesUtil;
 import com.justwayward.reader.utils.StringUtils;
+import com.justwayward.reader.utils.ToastUtils;
 
 import java.util.List;
 
@@ -92,8 +102,93 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
     }
 
     @Override
-    public void getChapterRead(String url, final int chapter) {
-        Subscription rxSubscription = bookApi.getChapterRead(url).subscribeOn(Schedulers.io())
+    public void showIsPublish(BookPublishRequest bookPublishRequest) {
+        Subscription rxSubscription = bookApi.publish(bookPublishRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BookPublish>() {
+                    @Override
+                    public void onNext(BookPublish data) {
+                        if (data != null && mView != null) {
+                            if(SharedPreferencesUtil.getInstance().getBoolean(Constant.Manager,false)){
+                                if(TextUtils.equals(data.rescode , "200")){
+                                    mView.showPublish(3);
+                                }else {
+                                    mView.showPublish(1);
+                                }
+                            }else{
+                                if(TextUtils.equals(data.rescode , "200")){
+                                    mView.showPublish(2);
+                                }else {
+                                    mView.showPublish(0);
+                                }
+                            }
+                        } else {
+                            mView.showPublish(0);
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+                    }
+                });
+        addSubscrebe(rxSubscription);
+    }
+
+    @Override
+    public void sendPublish(BookPublishRequest bookPublishRequest) {
+        Subscription rxSubscription = bookApi.publish(bookPublishRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BookPublish>() {
+                    @Override
+                    public void onNext(BookPublish data) {
+                        if (data != null && mView != null) {
+                            if(SharedPreferencesUtil.getInstance().getBoolean(Constant.Manager,false)){
+                                ToastUtils.showToast("出版成功");
+                            }else{
+                                ToastUtils.showToast("购买成功");
+                            }
+                        } else {
+                            mView.showPublish(0);
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+                    }
+                });
+        addSubscrebe(rxSubscription);
+    }
+
+
+    @Override
+    public void getChapterRead(String url, final int chapter, final String bookId) {
+        Subscription rxSubscription = bookApi.getBBookSource("summary", bookId)
+                .flatMap(new Func1<List<BookSource>, Observable<BookReadVip>>() {
+                    @Override
+                    public Observable<BookReadVip> call(List<BookSource> bookSources) {
+                        return bookApi.getABookRead(bookSources.get(0)._id,"chapters");
+                    }
+                })
+                .flatMap(new Func1<BookReadVip, Observable<ChapterRead>>() {
+                    @Override
+                    public Observable<ChapterRead> call(BookReadVip bookReadVip) {
+                        Log.i("yxtest",bookReadVip.chapters.get(chapter).link);
+                        return bookApi.getChapterRead(bookReadVip.chapters.get(chapter).link);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ChapterRead>() {
                     @Override

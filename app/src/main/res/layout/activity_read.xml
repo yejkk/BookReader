@@ -107,6 +107,17 @@
             android:textColor="@color/book_read_top_text"
             android:textSize="@dimen/book_read_top_text" />
 
+        <TextView
+            android:id="@+id/tvBookPublish"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/book_publish"
+            android:visibility="gone"
+            android:textColor="@color/book_read_top_text"
+            android:textSize="@dimen/book_read_top_text" />
+
     </LinearLayout>
 
     <TextView
