@@ -16,6 +16,12 @@
 package com.justwayward.reader.api;
 
 import com.justwayward.reader.bean.AutoComplete;
+import com.justwayward.reader.bean.BookCaseInsertRequest;
+import com.justwayward.reader.bean.BookCaseRequest;
+import com.justwayward.reader.bean.BookCaseResp;
+import com.justwayward.reader.bean.BookChapterComInsertReq;
+import com.justwayward.reader.bean.BookChapterComReq;
+import com.justwayward.reader.bean.BookChapterComRespo;
 import com.justwayward.reader.bean.BookDetail;
 import com.justwayward.reader.bean.BookHelpList;
 import com.justwayward.reader.bean.BookListDetail;
@@ -40,6 +46,7 @@ import com.justwayward.reader.bean.Disscussion;
 import com.justwayward.reader.bean.BookHelp;
 import com.justwayward.reader.bean.HotReview;
 import com.justwayward.reader.bean.HotWord;
+import com.justwayward.reader.bean.base.BaseReponse;
 import com.justwayward.reader.bean.user.Following;
 import com.justwayward.reader.bean.user.Login;
 import com.justwayward.reader.bean.PostCount;
@@ -405,4 +412,18 @@ public interface BookApiService {
 
     @GET("/post/original")
     Observable<DiscussionList> getBookOriginalList(@Query("block") String block, @Query("duration") String duration, @Query("sort") String sort, @Query("type") String type, @Query("start") String start, @Query("limit") String limit, @Query("distillate") String distillate);
+
+    @POST("http://162.219.121.112/backend/Book")
+    Observable<BookCaseResp> getBook(@Body BookCaseRequest bookCaseRequest);
+
+    @POST("http://162.219.121.112/backend/Book")
+    Observable<BaseReponse> getBook(@Body BookCaseInsertRequest bookCaseInsertRequest);
+
+    @POST("http://162.219.121.112/backend/Book")
+    Observable<BaseReponse> getBook(@Body BookChapterComInsertReq bookChapterComInsertReq);
+
+    @POST("http://162.219.121.112/backend/Book")
+    Observable<BookChapterComRespo> getBook(@Body BookChapterComReq bookChapterComReq);
+
+
 }

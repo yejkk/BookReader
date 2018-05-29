@@ -65,6 +65,7 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                     public void onNext(Login data) {
                         if (data != null && mView != null ) {
                             if(TextUtils.equals(data.rescode , "200")){
+                                SharedPreferencesUtil.getInstance().putString(Constant.Token, data.token);
                                 mView.loginSuccess();
                                 if(TextUtils.equals(data.INFO, "manager")) {
                                     SharedPreferencesUtil.getInstance().putBoolean(Constant.Manager, true);

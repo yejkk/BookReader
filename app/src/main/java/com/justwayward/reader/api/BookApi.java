@@ -17,6 +17,12 @@ package com.justwayward.reader.api;
 
 import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.bean.AutoComplete;
+import com.justwayward.reader.bean.BookCaseInsertRequest;
+import com.justwayward.reader.bean.BookCaseRequest;
+import com.justwayward.reader.bean.BookCaseResp;
+import com.justwayward.reader.bean.BookChapterComInsertReq;
+import com.justwayward.reader.bean.BookChapterComReq;
+import com.justwayward.reader.bean.BookChapterComRespo;
 import com.justwayward.reader.bean.BookDetail;
 import com.justwayward.reader.bean.BookHelp;
 import com.justwayward.reader.bean.BookHelpList;
@@ -46,6 +52,7 @@ import com.justwayward.reader.bean.Rankings;
 import com.justwayward.reader.bean.Recommend;
 import com.justwayward.reader.bean.RecommendBookList;
 import com.justwayward.reader.bean.SearchDetail;
+import com.justwayward.reader.bean.base.BaseReponse;
 import com.justwayward.reader.bean.user.Login;
 import com.justwayward.reader.bean.user.LoginReq;
 
@@ -236,5 +243,24 @@ public class BookApi {
     public Observable<DiscussionList> getGirlBookDisscussionList(String block, String duration, String sort, String type, String start, String limit, String distillate) {
         return service.getBookDisscussionList(block, duration, sort, type, start, limit, distillate);
     }
+
+    public Observable<BookCaseResp> getBookCaseI(BookCaseRequest bookCaseRequest) {
+        return service.getBook(bookCaseRequest);
+    }
+
+    public Observable<BaseReponse> setBookCaseI(BookCaseInsertRequest bookCaseInsertRequest) {
+        return service.getBook(bookCaseInsertRequest);
+    }
+
+    public Observable<BaseReponse> setBookChapterComReq(BookChapterComInsertReq bookChapterComInsertReq) {
+        return service.getBook(bookChapterComInsertReq);
+    }
+
+    public Observable<BookChapterComRespo> getBookChapterComReq(BookChapterComReq bookChapterComReq) {
+        return service.getBook(bookChapterComReq);
+    }
+
+
+
 
 }

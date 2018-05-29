@@ -57,6 +57,8 @@ public class Constant {
 
     public static final String Manager = "user_manager";
 
+    public static final String Token = "token";
+
     public static final String ISBYUPDATESORT = "isByUpdateSort";
     public static final String FLIP_STYLE = "flipStyle";
 

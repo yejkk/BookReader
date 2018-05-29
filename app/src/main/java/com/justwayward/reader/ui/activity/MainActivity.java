@@ -165,18 +165,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
 
         mPresenter.attachView(this);
 
-        mIndicator.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!SettingManager.getInstance().isUserChooseSex()
-                        && (genderPopupWindow == null || !genderPopupWindow.isShowing())) {
-                    showChooseSexPopupWindow();
-                } else {
-                    showDialog();
-                    mPresenter.syncBookShelf();
-                }
-            }
-        }, 500);
+
     }
 
     @Override
@@ -315,6 +304,18 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
         loginsucccess = true;
         popupWindow.getLoginStatus(true);
         SharedPreferencesUtil.getInstance().putBoolean(Constant.Login, true);
+        mIndicator.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!SettingManager.getInstance().isUserChooseSex()
+                        && (genderPopupWindow == null || !genderPopupWindow.isShowing())) {
+                    showChooseSexPopupWindow();
+                } else {
+                    showDialog();
+                    mPresenter.syncBookShelf();
+                }
+            }
+        }, 500);
     }
 
     @Override
