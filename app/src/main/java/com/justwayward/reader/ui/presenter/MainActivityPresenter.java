@@ -20,6 +20,8 @@ import android.text.TextUtils;
 import com.justwayward.reader.api.BookApi;
 import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.base.RxPresenter;
+import com.justwayward.reader.bean.BookCaseRequest;
+import com.justwayward.reader.bean.BookCaseResp;
 import com.justwayward.reader.bean.BookMixAToc;
 import com.justwayward.reader.bean.Recommend;
 import com.justwayward.reader.bean.user.Login;
@@ -123,6 +125,48 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
     @Override
     public void syncBookShelf() {
         List<Recommend.RecommendBooks> list = CollectionsManager.getInstance().getCollectionList();
+        BookCaseRequest bookCaseRequest = new BookCaseRequest();
+        bookCaseRequest.Action = "";
+        bookCaseRequest.token = SharedPreferencesUtil.getInstance().getString(Constant.Token, "");
+        if(TextUtils.isEmpty(bookCaseRequest.token)){
+            return;
+        }
+        Subscription bookSubscription = bookApi.getBookCaseI(bookCaseRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BookCaseResp>() {
+                    @Override
+                    public void onNext(BookCaseResp bookCaseResp) {
+                        for (Recommend.RecommendBooks bean : CollectionsManager.getInstance().getCollectionList()) {
+                            if(!bookCaseResp.book.contains(bean._id)){
+                                CollectionsManager.getInstance().remove(bean._id);
+                                bookCaseResp.book.remove(bean._id);
+                            }
+                        }
+
+                        for(String str : bookCaseResp.book){
+                            CollectionsManager.getInstance().add(bean._id);
+                        }
+
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        mView.syncBookShelfCompleted();
+                        if(isLastSyncUpdateed){
+                            ToastUtils.showSingleToast("小説已更新");
+                        }else{
+                            ToastUtils.showSingleToast("你追的小説沒有更新");
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+//                        mView.showError();
+                    }
+                });
         List<Observable<BookMixAToc.mixToc>> observables = new ArrayList<>();
         if (list != null && !list.isEmpty()) {
             for (Recommend.RecommendBooks bean : list) {
