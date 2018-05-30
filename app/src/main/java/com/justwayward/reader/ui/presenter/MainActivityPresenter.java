@@ -20,10 +20,13 @@ import android.text.TextUtils;
 import com.justwayward.reader.api.BookApi;
 import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.base.RxPresenter;
+import com.justwayward.reader.bean.BookCaseInsertRequest;
 import com.justwayward.reader.bean.BookCaseRequest;
 import com.justwayward.reader.bean.BookCaseResp;
+import com.justwayward.reader.bean.BookDetail;
 import com.justwayward.reader.bean.BookMixAToc;
 import com.justwayward.reader.bean.Recommend;
+import com.justwayward.reader.bean.base.BaseReponse;
 import com.justwayward.reader.bean.user.Login;
 import com.justwayward.reader.bean.user.LoginReq;
 import com.justwayward.reader.manager.CollectionsManager;
@@ -65,16 +68,16 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                 .subscribe(new Observer<Login>() {
                     @Override
                     public void onNext(Login data) {
-                        if (data != null && mView != null ) {
-                            if(TextUtils.equals(data.rescode , "200")){
+                        if (data != null && mView != null) {
+                            if (TextUtils.equals(data.rescode, "200")) {
                                 SharedPreferencesUtil.getInstance().putString(Constant.Token, data.token);
                                 mView.loginSuccess();
-                                if(TextUtils.equals(data.INFO, "manager")) {
+                                if (TextUtils.equals(data.INFO, "manager")) {
                                     SharedPreferencesUtil.getInstance().putBoolean(Constant.Manager, true);
-                                }else{
+                                } else {
                                     SharedPreferencesUtil.getInstance().putBoolean(Constant.Manager, false);
                                 }
-                            }else{
+                            } else {
                                 mView.loginFail();
                             }
 
@@ -100,10 +103,10 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                 .subscribe(new Observer<Login>() {
                     @Override
                     public void onNext(Login data) {
-                        if (data != null && mView != null ) {
-                            if(TextUtils.equals(data.rescode , "200")){
+                        if (data != null && mView != null) {
+                            if (TextUtils.equals(data.rescode, "200")) {
                                 mView.registSuccess();
-                            }else{
+                            } else {
                                 mView.registFail();
                             }
 
@@ -126,9 +129,9 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
     public void syncBookShelf() {
         List<Recommend.RecommendBooks> list = CollectionsManager.getInstance().getCollectionList();
         BookCaseRequest bookCaseRequest = new BookCaseRequest();
-        bookCaseRequest.Action = "";
+        bookCaseRequest.Action = "GetUserBook";
         bookCaseRequest.token = SharedPreferencesUtil.getInstance().getString(Constant.Token, "");
-        if(TextUtils.isEmpty(bookCaseRequest.token)){
+        if (TextUtils.isEmpty(bookCaseRequest.token)) {
             return;
         }
         Subscription bookSubscription = bookApi.getBookCaseI(bookCaseRequest)
@@ -138,26 +141,17 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                     @Override
                     public void onNext(BookCaseResp bookCaseResp) {
                         for (Recommend.RecommendBooks bean : CollectionsManager.getInstance().getCollectionList()) {
-                            if(!bookCaseResp.book.contains(bean._id)){
+                            if (!bookCaseResp.book.contains(bean._id)) {
                                 CollectionsManager.getInstance().remove(bean._id);
                                 bookCaseResp.book.remove(bean._id);
                             }
                         }
-
-                        for(String str : bookCaseResp.book){
-                            CollectionsManager.getInstance().add(bean._id);
-                        }
+                        mView.getRecommedList(bookCaseResp);
 
                     }
 
                     @Override
                     public void onCompleted() {
-                        mView.syncBookShelfCompleted();
-                        if(isLastSyncUpdateed){
-                            ToastUtils.showSingleToast("小説已更新");
-                        }else{
-                            ToastUtils.showSingleToast("你追的小説沒有更新");
-                        }
 
                     }
 
@@ -167,6 +161,7 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
 //                        mView.showError();
                     }
                 });
+        addSubscrebe(bookSubscription);
         List<Observable<BookMixAToc.mixToc>> observables = new ArrayList<>();
         if (list != null && !list.isEmpty()) {
             for (Recommend.RecommendBooks bean : list) {
@@ -203,9 +198,9 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                     @Override
                     public void onCompleted() {
                         mView.syncBookShelfCompleted();
-                        if(isLastSyncUpdateed){
+                        if (isLastSyncUpdateed) {
                             ToastUtils.showSingleToast("小説已更新");
-                        }else{
+                        } else {
                             ToastUtils.showSingleToast("你追的小説沒有更新");
                         }
 
@@ -218,5 +213,76 @@ public class MainActivityPresenter extends RxPresenter<MainContract.View> implem
                     }
                 });
         addSubscrebe(rxSubscription);
+    }
+
+    @Override
+    public void getRecommedList(BookCaseResp bookCaseRes) {
+        List<Observable<BookDetail>> observables = new ArrayList<>();
+        for (String bookcase : bookCaseRes.book) {
+            observables.add(bookApi.getBookDetail(bookcase));
+        }
+        Subscription rxSubscription = Observable.merge(observables)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BookDetail>() {
+                    @Override
+                    public void onNext(BookDetail data) {
+                        Recommend.RecommendBooks recommendBooks = new Recommend.RecommendBooks();
+                        recommendBooks.title = data.title;
+                        recommendBooks._id = data._id;
+                        recommendBooks.cover = data.cover;
+                        recommendBooks.lastChapter = data.lastChapter;
+                        recommendBooks.updated = data.updated;
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        mView.syncBookShelfCompleted();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+//                        mView.showError();
+                    }
+                });
+        addSubscrebe(rxSubscription);
+    }
+
+    @Override
+    public void setRecommedList() {
+        List<Recommend.RecommendBooks> list = CollectionsManager.getInstance().getCollectionList();
+        BookCaseInsertRequest bookCaseInsertRequest = new BookCaseInsertRequest();
+        bookCaseInsertRequest.Action = "InsertUserBook";
+        bookCaseInsertRequest.token = SharedPreferencesUtil.getInstance().getString(Constant.Token, "");
+        bookCaseInsertRequest.data = new ArrayList<BookCaseInsertRequest.Data>();
+        for (int i = 0, length = list.size(); i < length; i++) {
+            BookCaseInsertRequest.Data data = new BookCaseInsertRequest.Data();
+            data.bookId = list.get(i)._id;
+            bookCaseInsertRequest.data.add(data);
+        }
+        Subscription bookSubscription = bookApi.setBookCaseI(bookCaseInsertRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BaseReponse>() {
+                    @Override
+                    public void onNext(BaseReponse bookCaseResp) {
+                        if (TextUtils.equals(bookCaseResp.rescode, "200")) {
+                            ToastUtils.showSingleToast("书架已同步");
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+//                        mView.showError();
+                    }
+                });
+        addSubscrebe(bookSubscription);
     }
 }

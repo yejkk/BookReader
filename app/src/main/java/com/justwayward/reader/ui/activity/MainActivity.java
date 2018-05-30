@@ -45,6 +45,7 @@ import com.google.gson.Gson;
 import com.justwayward.reader.R;
 import com.justwayward.reader.base.BaseActivity;
 import com.justwayward.reader.base.Constant;
+import com.justwayward.reader.bean.BookCaseResp;
 import com.justwayward.reader.bean.user.LoginReq;
 import com.justwayward.reader.bean.user.TencentLoginResult;
 import com.justwayward.reader.component.AppComponent;
@@ -222,8 +223,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
                 popupWindow.showAtLocation(mCommonToolbar, Gravity.CENTER, 0, 0);
                 break;
             case R.id.action_sync_bookshelf:
-                showDialog();
-                mPresenter.syncBookShelf();
+                mPresenter.setRecommedList();
                /* if (popupWindow == null) {
                     popupWindow = new LoginPopupWindow(this);
                     popupWindow.setLoginTypeListener(this);
@@ -338,6 +338,11 @@ public class MainActivity extends BaseActivity implements MainContract.View, Log
     public void syncBookShelfCompleted() {
         dismissDialog();
         EventManager.refreshCollectionList();
+    }
+
+    @Override
+    public void getRecommedList(BookCaseResp bookCaseRes){
+        mPresenter.getRecommedList(bookCaseRes);
     }
 
     @Override

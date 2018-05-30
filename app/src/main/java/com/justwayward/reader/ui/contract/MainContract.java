@@ -16,6 +16,7 @@
 package com.justwayward.reader.ui.contract;
 
 import com.justwayward.reader.base.BaseContract;
+import com.justwayward.reader.bean.BookCaseResp;
 import com.justwayward.reader.bean.user.LoginReq;
 
 /**
@@ -34,6 +35,8 @@ public interface MainContract {
         void registFail();
 
         void syncBookShelfCompleted();
+
+        void getRecommedList(BookCaseResp bookCaseRes);
     }
 
     interface Presenter<T> extends BaseContract.BasePresenter<T> {
@@ -43,6 +46,10 @@ public interface MainContract {
         void regist(LoginReq loginReq);
 
         void syncBookShelf();
+
+        void getRecommedList(BookCaseResp bookCaseRes);
+
+        void setRecommedList();
     }
 
 }

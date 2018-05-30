@@ -207,4 +207,13 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/chapterCommen"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_above="@id/llBookReadBottom"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/chapter_commen"
+        />
+
 </RelativeLayout>
