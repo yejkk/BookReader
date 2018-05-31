@@ -50,6 +50,7 @@ import com.justwayward.reader.R;
 import com.justwayward.reader.ReaderApplication;
 import com.justwayward.reader.base.BaseActivity;
 import com.justwayward.reader.base.Constant;
+import com.justwayward.reader.bean.BookChapterComRespo;
 import com.justwayward.reader.bean.BookMixAToc;
 import com.justwayward.reader.bean.BookPublishRequest;
 import com.justwayward.reader.bean.BookSource;
@@ -69,6 +70,7 @@ import com.justwayward.reader.manager.SettingManager;
 import com.justwayward.reader.manager.ThemeManager;
 import com.justwayward.reader.service.DownloadBookService;
 import com.justwayward.reader.ui.adapter.BookMarkAdapter;
+import com.justwayward.reader.ui.adapter.CommenListAdapter;
 import com.justwayward.reader.ui.adapter.TocListAdapter;
 import com.justwayward.reader.ui.contract.BookReadContract;
 import com.justwayward.reader.ui.easyadapter.ReadThemeAdapter;
@@ -185,7 +187,9 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
 
     private List<BookMixAToc.mixToc.Chapters> mChapterList = new ArrayList<>();
     private ListPopupWindow mTocListPopupWindow;
+    private ListPopupWindow mCommenListPopupWindow;
     private TocListAdapter mTocListAdapter;
+    private CommenListAdapter mCommenAdapter;
 
     private List<BookMark> mMarkList;
     private BookMarkAdapter mMarkAdapter;
@@ -384,6 +388,42 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
                 visible(mTvBookReadReading, mTvBookReadCommunity, mTvBookReadChangeSource);
             }
         });
+    }
+
+    private void initCommentList(List<BookChapterComRespo.BookChapter> list) {
+
+        mCommenListPopupWindow = new ListPopupWindow(mContext);
+        mCommenAdapter = new CommenListAdapter(mContext, list, new CommenListAdapter.CommenBookListener(){
+
+            @Override
+            public void sendCommen(String info) {
+                mPresenter.sendChapterCommen(info);
+            }
+        });
+        mCommenListPopupWindow.setAdapter(mCommenAdapter);
+        mCommenListPopupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        mCommenListPopupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        mCommenListPopupWindow.setAnchorView(mLlBookReadTop);
+        mCommenListPopupWindow.setForceIgnoreOutsideTouch(false);
+
+        mCommenListPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+//                gone(mTvBookReadTocTitle);
+                visible(mTvBookReadReading, mTvBookReadCommunity, mTvBookReadChangeSource);
+            }
+        });
+        mCommenListPopupWindow.setModal(true);
+    }
+
+    @Override
+    public void showChapterCommon(BookChapterComRespo bookChapterComRespo){
+        initCommentList(bookChapterComRespo.data);
+    }
+
+    @Override
+    public void showChapterCommon(){
+//        initCommentList(bookChapterComRespo.data);
     }
 
     /**

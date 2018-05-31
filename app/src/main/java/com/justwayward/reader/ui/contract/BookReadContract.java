@@ -16,6 +16,7 @@
 package com.justwayward.reader.ui.contract;
 
 import com.justwayward.reader.base.BaseContract;
+import com.justwayward.reader.bean.BookChapterComRespo;
 import com.justwayward.reader.bean.BookMixAToc;
 import com.justwayward.reader.bean.BookPublishRequest;
 import com.justwayward.reader.bean.ChapterRead;
@@ -35,6 +36,10 @@ public interface BookReadContract {
 
         void showPublish(int publish);
 
+        void showChapterCommon(BookChapterComRespo bookChapterComRespo);
+
+        void showChapterCommon();
+
         void netError(int chapter);//添加网络处理异常接口
     }
 
@@ -46,6 +51,10 @@ public interface BookReadContract {
         void showIsPublish(BookPublishRequest bookPublishRequest);
 
         void sendPublish(BookPublishRequest bookPublishRequest);
+
+        void getChapterCommenRead(int chapter, String bookId);
+
+        void sendChapterCommen(String info);
     }
 
 }

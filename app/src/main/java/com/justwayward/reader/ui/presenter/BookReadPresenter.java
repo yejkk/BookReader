@@ -22,6 +22,9 @@ import android.util.Log;
 import com.justwayward.reader.api.BookApi;
 import com.justwayward.reader.base.Constant;
 import com.justwayward.reader.base.RxPresenter;
+import com.justwayward.reader.bean.BookChapterComInsertReq;
+import com.justwayward.reader.bean.BookChapterComReq;
+import com.justwayward.reader.bean.BookChapterComRespo;
 import com.justwayward.reader.bean.BookMixAToc;
 import com.justwayward.reader.bean.BookPublish;
 import com.justwayward.reader.bean.BookPublishRequest;
@@ -29,6 +32,7 @@ import com.justwayward.reader.bean.BookRead;
 import com.justwayward.reader.bean.BookReadVip;
 import com.justwayward.reader.bean.BookSource;
 import com.justwayward.reader.bean.ChapterRead;
+import com.justwayward.reader.bean.base.BaseReponse;
 import com.justwayward.reader.ui.contract.BookReadContract;
 import com.justwayward.reader.utils.LogUtils;
 import com.justwayward.reader.utils.RxUtil;
@@ -110,16 +114,16 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
                     @Override
                     public void onNext(BookPublish data) {
                         if (data != null && mView != null) {
-                            if(SharedPreferencesUtil.getInstance().getBoolean(Constant.Manager,false)){
-                                if(TextUtils.equals(data.rescode , "200")){
+                            if (SharedPreferencesUtil.getInstance().getBoolean(Constant.Manager, false)) {
+                                if (TextUtils.equals(data.rescode, "200")) {
                                     mView.showPublish(3);
-                                }else {
+                                } else {
                                     mView.showPublish(1);
                                 }
-                            }else{
-                                if(TextUtils.equals(data.rescode , "200")){
+                            } else {
+                                if (TextUtils.equals(data.rescode, "200")) {
                                     mView.showPublish(2);
-                                }else {
+                                } else {
                                     mView.showPublish(0);
                                 }
                             }
@@ -149,9 +153,9 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
                     @Override
                     public void onNext(BookPublish data) {
                         if (data != null && mView != null) {
-                            if(SharedPreferencesUtil.getInstance().getBoolean(Constant.Manager,false)){
+                            if (SharedPreferencesUtil.getInstance().getBoolean(Constant.Manager, false)) {
                                 ToastUtils.showToast("出版成功");
-                            }else{
+                            } else {
                                 ToastUtils.showToast("购买成功");
                             }
                         } else {
@@ -178,13 +182,13 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
                 .flatMap(new Func1<List<BookSource>, Observable<BookReadVip>>() {
                     @Override
                     public Observable<BookReadVip> call(List<BookSource> bookSources) {
-                        return bookApi.getABookRead(bookSources.get(0)._id,"chapters");
+                        return bookApi.getABookRead(bookSources.get(0)._id, "chapters");
                     }
                 })
                 .flatMap(new Func1<BookReadVip, Observable<ChapterRead>>() {
                     @Override
                     public Observable<ChapterRead> call(BookReadVip bookReadVip) {
-                        Log.i("yxtest",bookReadVip.chapters.get(chapter).link);
+                        Log.i("yxtest", bookReadVip.chapters.get(chapter).link);
                         return bookApi.getChapterRead(bookReadVip.chapters.get(chapter).link);
                     }
                 })
@@ -208,6 +212,62 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
                     public void onError(Throwable e) {
                         LogUtils.e("onError: " + e);
                         mView.netError(chapter);
+                    }
+                });
+        addSubscrebe(rxSubscription);
+    }
+
+    @Override
+    public void getChapterCommenRead(final int chapter, final String bookId) {
+        BookChapterComReq bookChapterComReq = new BookChapterComReq();
+        bookChapterComReq.Action = "";
+        bookChapterComReq.bookId = bookId;
+        bookChapterComReq.chapterID = chapter;
+        Subscription rxSubscription = bookApi.getBookChapterComReq(bookChapterComReq)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BookChapterComRespo>() {
+                    @Override
+                    public void onNext(BookChapterComRespo data) {
+                        mView.showChapterCommon(data);
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+//                        mView.netError(chapter);
+                    }
+                });
+        addSubscrebe(rxSubscription);
+    }
+
+    @Override
+    public void sendChapterCommen(final String info) {
+        BookChapterComInsertReq bookChapterComInsertReq = new BookChapterComInsertReq();
+        bookChapterComInsertReq.Action = "";
+//        bookChapterComInsertReq.data ;
+        Subscription rxSubscription = bookApi.setBookChapterComReq(bookChapterComInsertReq)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BaseReponse>() {
+                    @Override
+                    public void onNext(BaseReponse data) {
+                        ToastUtils.showToast("发表评论成功");
+                        mView.showChapterCommon();
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e("onError: " + e);
+//                        mView.netError(chapter);
                     }
                 });
         addSubscrebe(rxSubscription);

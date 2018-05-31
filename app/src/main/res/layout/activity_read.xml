@@ -216,4 +216,21 @@
         android:src="@drawable/chapter_commen"
         />
 
+    <LinearLayout
+        android:id="@+id/llBookCommen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/reader_menu_bg_color"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+        <com.justwayward.reader.view.SelectionLayout
+            android:id="@+id/slOverall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
 </RelativeLayout>

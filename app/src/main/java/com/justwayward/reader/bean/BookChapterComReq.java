@@ -9,5 +9,5 @@ import java.io.Serializable;
 public class BookChapterComReq implements Serializable {
         public String Action;
         public String bookId;
-        public String chapterID;
+        public int chapterID;
 }
