@@ -54,7 +54,7 @@ public interface BookReadContract {
 
         void getChapterCommenRead(int chapter, String bookId);
 
-        void sendChapterCommen(String info);
+        void sendChapterCommen(int chapter, String bookId, String info);
     }
 
 }

@@ -38,6 +38,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -172,6 +173,9 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
     TextView tvAddMark;
     @Bind(R.id.lvMark)
     ListView lvMark;
+
+    @Bind(R.id.chapterCommen)
+    ImageButton chapterCommen;
 
     @Bind(R.id.cbVolume)
     CheckBox cbVolume;
@@ -393,11 +397,11 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
     private void initCommentList(List<BookChapterComRespo.BookChapter> list) {
 
         mCommenListPopupWindow = new ListPopupWindow(mContext);
-        mCommenAdapter = new CommenListAdapter(mContext, list, new CommenListAdapter.CommenBookListener(){
+        mCommenAdapter = new CommenListAdapter(mContext, list, new CommenListAdapter.CommenBookListener() {
 
             @Override
             public void sendCommen(String info) {
-                mPresenter.sendChapterCommen(info);
+                mPresenter.sendChapterCommen(currentChapter, bookId, info);
             }
         });
         mCommenListPopupWindow.setAdapter(mCommenAdapter);
@@ -417,12 +421,12 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
     }
 
     @Override
-    public void showChapterCommon(BookChapterComRespo bookChapterComRespo){
+    public void showChapterCommon(BookChapterComRespo bookChapterComRespo) {
         initCommentList(bookChapterComRespo.data);
     }
 
     @Override
-    public void showChapterCommon(){
+    public void showChapterCommon() {
 //        initCommentList(bookChapterComRespo.data);
     }
 
@@ -619,6 +623,11 @@ public class ReadActivity extends BaseActivity implements BookReadContract.View 
     @OnClick(R.id.tvBookReadSource)
     public void onClickSource() {
         BookSourceActivity.start(this, bookId, 1);
+    }
+
+    @OnClick(R.id.chapterCommen)
+    public void onClickCommen(){
+
     }
 
     /***************Bottom Bar*****************/

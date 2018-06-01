@@ -13,6 +13,7 @@ public class BookChapterComInsertReq implements Serializable {
     public static class Data {
         public String token;
         public String bookId;
-        public String chapterID;
+        public int chapterID;
+        public String info;
     }
 }

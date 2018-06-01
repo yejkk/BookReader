@@ -220,7 +220,7 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
     @Override
     public void getChapterCommenRead(final int chapter, final String bookId) {
         BookChapterComReq bookChapterComReq = new BookChapterComReq();
-        bookChapterComReq.Action = "";
+        bookChapterComReq.Action = "GetBookChapterCom";
         bookChapterComReq.bookId = bookId;
         bookChapterComReq.chapterID = chapter;
         Subscription rxSubscription = bookApi.getBookChapterComReq(bookChapterComReq)
@@ -246,10 +246,14 @@ public class BookReadPresenter extends RxPresenter<BookReadContract.View>
     }
 
     @Override
-    public void sendChapterCommen(final String info) {
+    public void sendChapterCommen(final int chapter, final String bookId, final String info) {
         BookChapterComInsertReq bookChapterComInsertReq = new BookChapterComInsertReq();
-        bookChapterComInsertReq.Action = "";
-//        bookChapterComInsertReq.data ;
+        bookChapterComInsertReq.Action = "InsertBookChapterCom";
+        BookChapterComInsertReq.Data data =new BookChapterComInsertReq.Data();
+        data.bookId = bookId;
+        data.chapterID = chapter;
+        data.info = info;
+        data.token = SharedPreferencesUtil.getInstance().getString(Constant.Token,"");
         Subscription rxSubscription = bookApi.setBookChapterComReq(bookChapterComInsertReq)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
